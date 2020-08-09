@@ -3,7 +3,6 @@ package base;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
-import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -14,12 +13,24 @@ public class GraphicalInterface extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static final int WIDTH = 400;
 	private static final int HEIGHT = 150;
-	private final FactFetcher factFetcher = new FactFetcher();
+	
+	void presentFact(String fact) {
+		JOptionPane.showMessageDialog(this,
+				"<html><body><p style='width: 200px;'>" + fact + "</p></body></html>"
+				);
+	}
+	
+	void signalAnError(String errorMessage) {
+		JOptionPane.showMessageDialog(this,
+				errorMessage,
+				"Error",
+				JOptionPane.ERROR_MESSAGE);
+	}
 	
 	private class GraphicalInterfacePanel extends JPanel{
 		private static final long serialVersionUID = 1L;
 
-		GraphicalInterfacePanel(){
+		GraphicalInterfacePanel(Handler handler){
 			JButton printButton = new JButton("Get a fact"),
 					updateButton = new JButton("Update fact base");
 			
@@ -27,27 +38,11 @@ public class GraphicalInterface extends JFrame{
 			updateButton.setPreferredSize(new Dimension(180, 100));
 			
 			printButton.addActionListener(event -> {
-				String fact;
-				if( (fact = factFetcher.fetchFact()) != null )
-					JOptionPane.showMessageDialog(this,
-							"<html><body><p style='width: 200px;'>" + fact + "</p></body></html>"
-							);
-				else
-					JOptionPane.showMessageDialog(this,
-							"No facts in base",
-							"404",
-							JOptionPane.ERROR_MESSAGE);
+				handler.requestFact();
 			});
 			
 			updateButton.addActionListener(event -> {
-				try {
-					factFetcher.updateFactBase();
-				} catch (IOException e) {
-					JOptionPane.showMessageDialog(this,
-							"Error connecting to server",
-							"Error",
-							JOptionPane.ERROR_MESSAGE);
-				}
+				handler.updateFactBase();
 			});
 			
 			add(printButton);
@@ -55,7 +50,7 @@ public class GraphicalInterface extends JFrame{
 		}
 	}
 	
-	GraphicalInterface(){
+	GraphicalInterface(Handler handler){
 		setSize(WIDTH, HEIGHT);
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setLayout(new GridLayout(1, 1));
@@ -64,7 +59,7 @@ public class GraphicalInterface extends JFrame{
 		Dimension res = Toolkit.getDefaultToolkit().getScreenSize();
 		setLocation(res.width/2 - WIDTH/2, res.height/2 - HEIGHT/2);
 		
-		GraphicalInterfacePanel panel = new GraphicalInterfacePanel();
+		GraphicalInterfacePanel panel = new GraphicalInterfacePanel(handler);
 		add(panel);
 		
 		setVisible(true);
