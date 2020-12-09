@@ -19,10 +19,6 @@ public class FactFetcher {
 	//<fact, was shown>
 	private final Map<String, Boolean> factBase = new TreeMap<>();
 	
-	FactFetcher(){
-		
-	}
-	
 	String fetchFact() {
 		List<String> factList = new ArrayList<>();
 		for(Entry<String, Boolean> fact : factBase.entrySet())
